@@ -23,7 +23,7 @@ public class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(IntegrityException.class)
-    public ResponseEntity<StandardError> IntegrityException(IntegrityException e, HttpServletRequest request){
+    public ResponseEntity<StandardError> integrityException(IntegrityException e, HttpServletRequest request){
         String error = "Deletion violates foreign key constraint";
         HttpStatus status = HttpStatus.BAD_REQUEST;
         StandardError standardError = new StandardError(Instant.now(), status.value(), error, e.getMessage(), request.getRequestURI());
