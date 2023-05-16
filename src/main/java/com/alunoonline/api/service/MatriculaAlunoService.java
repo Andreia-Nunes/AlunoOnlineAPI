@@ -80,6 +80,16 @@ public class MatriculaAlunoService {
     }
 
     public MatriculaAluno update(MatriculaAluno matriculaAluno, MatriculaAluno matriculaAlunoUpdated) {
+        if(matriculaAlunoUpdated.getAluno().getId() != null){
+            Aluno aluno = alunoRepository.findById(matriculaAlunoUpdated.getAluno().getId()).get();
+            matriculaAlunoUpdated.setAluno(aluno);
+        }
+
+        if(matriculaAlunoUpdated.getDisciplina().getId() != null){
+            Disciplina disciplina = disciplinaRepository.findById(matriculaAlunoUpdated.getDisciplina().getId()).get();
+            matriculaAlunoUpdated.setDisciplina(disciplina);
+        }
+
         matriculaAluno.setNota1(matriculaAlunoUpdated.getNota1());
         matriculaAluno.setNota2(matriculaAluno.getNota2());
         matriculaAluno.setAluno(matriculaAlunoUpdated.getAluno());
