@@ -4,6 +4,8 @@ import com.alunoonline.api.model.Aluno;
 import com.alunoonline.api.model.Disciplina;
 import com.alunoonline.api.model.MatriculaAluno;
 import com.alunoonline.api.model.Professor;
+import com.alunoonline.api.model.dtos.NotasMatriculaDto;
+import com.alunoonline.api.model.enums.StatusMatriculaAluno;
 import com.alunoonline.api.repository.AlunoRepository;
 import com.alunoonline.api.repository.DisciplinaRepository;
 import com.alunoonline.api.repository.MatriculaAlunoRepository;
@@ -19,6 +21,8 @@ import java.util.List;
 
 @Service
 public class MatriculaAlunoService {
+
+    private static final Double GRADEAVGTOAPPROVE = 7.0;
 
     @Autowired
     private MatriculaAlunoRepository repository;
@@ -50,8 +54,6 @@ public class MatriculaAlunoService {
             disciplina.setProfessor(professor);
             matriculaAluno.setDisciplina(disciplina);
         }
-
-
 
         return repository.save(matriculaAluno);
     }
@@ -97,5 +99,35 @@ public class MatriculaAlunoService {
         matriculaAluno.setStatus(matriculaAlunoUpdated.getStatus());
 
         return repository.save(matriculaAluno);
+    }
+
+    public MatriculaAluno atualizarNotas(Long matriculaAlunoId, NotasMatriculaDto notas){
+        MatriculaAluno matricula = repository.findById(matriculaAlunoId).orElseThrow(() -> new ResourceNotFoundException(matriculaAlunoId));
+        updateNota1(matricula, notas);
+        updateNota2(matricula, notas);
+        calculaMedia(matricula);
+        return repository.save(matricula);
+    }
+
+    private void updateNota1(MatriculaAluno matricula, NotasMatriculaDto notas){
+         matricula.setNota1(notas.getNota1() != null ? notas.getNota1() : matricula.getNota1());
+    }
+
+    private void updateNota2(MatriculaAluno matricula, NotasMatriculaDto notas){
+        matricula.setNota2(notas.getNota2() != null ? notas.getNota2() : matricula.getNota2());
+    }
+
+    private void calculaMedia(MatriculaAluno matricula){
+        if(matricula.getNota1() != null && matricula.getNota2() != null){
+            Double somaNotas = matricula.getNota1() + matricula.getNota2();
+            Double media = somaNotas / 2.0;
+
+            if(media >= GRADEAVGTOAPPROVE){
+                matricula.setStatus(StatusMatriculaAluno.APROVADO);
+            }
+            else{
+                matricula.setStatus(StatusMatriculaAluno.REPROVADO);
+            }
+        }
     }
 }
